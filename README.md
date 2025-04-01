@@ -177,35 +177,130 @@ const messages = SCRATCHPAD.readMessages("frontend-developer", {
 });
 ```
 
+## 📘 MDC Rule Files
+
+The system uses Markdown Configuration (`.mdc`) files to define agent behaviors, system components, and integration points. These files combine markdown documentation with embedded code and configuration in a single, readable format.
+
+### Rule Structure
+
+Each MDC rule file follows this structure:
+
+```markdown
+---
+name: "Rule Name"
+description: "Brief description of the rule's purpose"
+version: "1.0.0"
+priority: 123 # Determines loading order
+date: "2025-04-01"
+author: "Author Name"
+category: "agent|system|memory|etc"
+tags: ["tag1", "tag2", "tag3"]
+---
+
+# Title of the Rule
+
+## Documentation Section
+
+Detailed explanation of what this rule does...
+
+## Implementation
+
+    // JavaScript code that implements the rule's functionality
+    (function() {
+      console.log("Rule activated");
+      // Implementation code...
+    })();
+
+## Additional Documentation
+
+More explanation about using the rule...
+
+## Dependencies
+
+@file .cursor/path/to/dependency.mdc # Reference to other rule files
+```
+
+### Key Benefits
+
+- **Self-documenting**: Rules contain both implementation and documentation
+- **Priority-based loading**: Rules are loaded in priority order (lower numbers first)
+- **Dependency management**: Rules can reference other rules with `@file` syntax
+- **IDE Integration**: Rules are automatically loaded by the Cursor IDE
+- **Semantic structure**: Enforces consistent organization across system components
+
+### Available Rules
+
+The system includes various rule categories:
+
+| Category      | Purpose                       | Examples                                |
+| ------------- | ----------------------------- | --------------------------------------- |
+| System Core   | Core system functionality     | `000-loader.mdc`, `001-system-core.mdc` |
+| Agents        | Agent definitions             | `101-executive-architect-agent.mdc`     |
+| Communication | Inter-agent communication     | `200-scratchpad.mdc`                    |
+| Memory        | Memory subsystems             | `300-memory-system.mdc`                 |
+| Integration   | External services integration | `400-mcp-server-integration.mdc`        |
+
 ## 📁 Project Structure
 
 ```
+
 .cursor/
-├── agents/                 # Agent implementations
-│   ├── multi-agent-system.js  # Core agent controller
-│   ├── executive-architect.js # Leadership agent
-│   ├── frontend-developer.js  # UI/UX specialist
-│   └── ...                 # Other specialized agents
-├── communication/          # Communication systems
-│   ├── activate.js         # System activation
-│   ├── direct-banner.js    # Banner management
-│   └── custom_instructions.js  # Instructions generator
-├── db/                     # Database components
-│   ├── memory-system.js    # SQLite memory implementation
-│   └── scratchpad-system.js # Communication storage
-├── memory-hooks/           # Memory interaction components
-│   ├── conversation-capture.js # Message recording
-│   ├── context-retrieval.js    # Context access
-│   └── auto-memory-system.js   # Automatic memory integration
-├── systems/                # Core system implementations
-│   ├── memory-system.js    # Memory system implementation
-│   ├── memory-initializer.js # Memory system bootstrapper
-│   ├── multi-agent-system.js # Agent coordination system
-│   └── scratchpad-system.js  # Inter-agent communication
-├── rules/                  # Agent behavior definitions
-├── package.json            # Dependencies
-└── README.md               # This documentation
+├── agents/ # Agent implementations
+│ ├── multi-agent-system.js # Core agent controller
+│ ├── executive-architect.js # Leadership agent
+│ ├── frontend-developer.js # UI/UX specialist
+│ └── ... # Other specialized agents
+├── communication/ # Communication systems
+│ ├── activate.js # System activation
+│ ├── direct-banner.js # Banner management
+│ └── custom_instructions.js # Instructions generator
+├── db/ # Database components
+│ ├── memory-system.js # SQLite memory implementation
+│ └── scratchpad-system.js # Communication storage
+├── memory-hooks/ # Memory interaction components
+│ ├── conversation-capture.js # Message recording
+│ ├── context-retrieval.js # Context access
+│ └── auto-memory-system.js # Automatic memory integration
+├── rules/ # MDC rule files
+│ ├── 000-loader.mdc # System loader and initialization
+│ ├── 000-enforcer.mdc # System enforcement and activation
+│ ├── 100-multi-agent-system.mdc # Multi-agent system definition
+│ ├── 101-executive-architect-agent.mdc # Agent definitions
+│ ├── 200-scratchpad.mdc # Communication system
+│ ├── 300-memory-system.mdc # Memory architecture
+│ └── 400-\*.mdc # Integration modules
+├── systems/ # Core system implementations
+│ ├── memory-system.js # Memory system implementation
+│ ├── memory-initializer.js # Memory system bootstrapper
+│ ├── multi-agent-system.js # Agent coordination system
+│ └── scratchpad-system.js # Inter-agent communication
+├── package.json # Dependencies
+└── README.md # This documentation
+
 ```
+
+### File Naming Convention
+
+The system follows a structured naming convention:
+
+1. **Priority-based Prefixes**:
+
+   - `000-*`: Core system initialization
+   - `100-*`: Multi-agent system and agents
+   - `200-*`: Communication and scratchpad
+   - `300-*`: Memory systems
+   - `400-*`: External integrations
+
+2. **File Types**:
+
+   - `.mdc`: Markdown Configuration files (rules)
+   - `.js`: JavaScript implementation
+   - `.json`: Configuration data
+
+3. **Implementation Pattern**:
+   - Each subsystem typically has both `.mdc` rule files and `.js` implementation files
+   - The `.mdc` files provide documentation and configuration
+   - The `.js` files contain the actual implementation code
 
 ## 🧪 Testing
 
@@ -231,6 +326,128 @@ node .cursor/fix-banners.js
 ## 🔧 Customization
 
 ### Adding a New Agent
+
+There are two ways to create a new agent:
+
+#### Option 1: Using the MDC Rule File (Recommended)
+
+1. Create a new `.mdc` rule file in `.cursor/rules/` with an appropriate priority number:
+
+```markdown
+---
+name: "Security Specialist Agent"
+description: "Core rules and capabilities for the Security Specialist agent focusing on secure implementation"
+version: "1.0.0"
+priority: 108
+date: "2025-04-01"
+author: "Your Name"
+category: "agent"
+tags: ["security", "penetration-testing", "compliance", "encryption"]
+---
+
+# Security Specialist AI Agent
+
+## Core Identity and Purpose
+
+You are Security Specialist, an elite AI agent specializing in security implementation, auditing, and compliance for software applications.
+
+## Operational Framework
+
+### Role Delineation
+
+As Security Specialist, you embody these professional identities:
+
+1. **Security Architect**: You design secure system architectures and ensure security is built into all components.
+2. **Compliance Expert**: You verify code meets relevant security standards and regulatory requirements.
+3. **Penetration Tester**: You identify potential vulnerabilities and recommend fixes.
+
+### Knowledge Domain Parameters
+
+Maintain expertise in:
+
+- Application security best practices
+- Encryption and authentication methods
+- Compliance frameworks (GDPR, HIPAA, SOC2, etc.)
+- Secure coding techniques
+- Threat modeling
+
+## Functional Capabilities
+
+// Additional sections with specific capabilities
+
+## Implementation Instructions
+
+Make sure you always follow the detailed implementation instructions and incorporate all supplemental data provided therein.
+
+@file .cursor/agents/security-specialist/instructions.md
+
+## Communication System
+
+Always use the Agent Shared Scratchpad Communication System with the following specifications:
+
+@file .cursor/rules/200-scratchpad.mdc
+```
+
+2. Create a corresponding agent implementation file in `.cursor/agents/`:
+
+```javascript
+// .cursor/agents/security-specialist.js
+module.exports = {
+  name: "Security Specialist",
+  emoji: "🔒",
+  description: "Security implementation and auditing",
+  roles: ["Security Architect", "Compliance Expert", "Penetration Tester"],
+  expertise: [
+    "Application Security",
+    "Encryption",
+    "Compliance",
+    "Secure Coding",
+  ],
+  activate: function () {
+    console.log("🔒 Security Specialist activated");
+    // Agent initialization code
+  },
+};
+```
+
+3. Register the agent in the multi-agent system registry:
+
+```javascript
+// In .cursor/agents/multi-agent-system.js or through the .mdc rule
+MULTI_AGENT_SYSTEM.registerAgent("security-specialist", {
+  id: "security-specialist",
+  name: "Security Specialist",
+  emoji: "🔒",
+  description: "Security implementation and auditing",
+});
+```
+
+### Using Existing Rules as Templates
+
+When creating a new agent, you can reference existing rule files as templates:
+
+1. **View existing agent rules** in the `.cursor/rules/` directory (e.g., `101-executive-architect-agent.mdc`)
+2. **Use the `fetch_rules` tool** in Cursor to retrieve a specific rule structure:
+   ```
+   // Example: Fetch the Frontend Developer agent rule as reference
+   fetch_rules("102-frontend-developer-agent")
+   ```
+3. **Copy and adapt** the structure, replacing agent-specific details
+4. **Maintain consistency** with existing agent structure for seamless integration
+5. **Reference common subsystems** like the scratchpad and memory systems using the `@file` syntax
+
+### Required Rule Sections
+
+For proper agent integration, all agent rule files must include:
+
+- **YAML frontmatter** with appropriate metadata
+- **Core Identity and Purpose** section defining the agent's role
+- **Operational Framework** with Role Delineation and Knowledge Domain
+- **Functional Capabilities** specific to the agent's specialization
+- **Communication System** reference to the scratchpad system
+- **Implementation Instructions** path to additional details
+
+#### Option 2: Using JavaScript Only (Legacy)
 
 1. Create a new agent implementation file in `.cursor/agents/`:
 
@@ -278,3 +495,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 <div align="center">
   <p>Built with ❤️ by the Cursor Systems team</p>
 </div>
+````
