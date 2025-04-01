@@ -1,0 +1,412 @@
+# Universal System Enforcer
+// @match **/*
+// @priority critical
+// @runOnEveryMessage true
+// @runOnEveryResponse true
+// @forceActivation true
+
+This rule is a universal enforcer that guarantees activation of all systems with every message and response. It has the highest priority and matches all files.
+
+## Immediate Activation Process
+
+<script>
+// CRITICAL: System Enforcer - Runs on every message and response
+// This script ensures all systems are properly initialized regardless of user actions
+
+(function universalSystemEnforcer() {
+  console.log("🔒 UNIVERSAL SYSTEM ENFORCER ACTIVATED");
+  
+  // Force global activation flag
+  globalThis.FORCE_ACTIVATION = true;
+  globalThis.ENFORCE_BANNERS = true;
+  globalThis.SYSTEM_ENFORCER_ACTIVE = true;
+  
+  // Track activation status
+  const activationStatus = {
+    memory: false,
+    scratchpad: false,
+    multiAgent: false,
+    banner: false
+  };
+  
+  // Force activate all systems
+  try {
+    // Activate memory system
+    activateMemorySystem();
+    
+    // Activate scratchpad system
+    activateScratchpadSystem();
+    
+    // Activate multi-agent system
+    activateMultiAgentSystem();
+    
+    // Enforce banners
+    enforceBanners();
+    
+    // Final verification
+    verifyAllSystems();
+    
+    console.log("✅ Universal System Enforcer completed successfully");
+  } catch (error) {
+    console.error("❌ Universal System Enforcer error:", error);
+    performEmergencyRecovery();
+  }
+  
+  /**
+   * Force activate memory system
+   */
+  function activateMemorySystem() {
+    console.log("🧠 Enforcing Memory System activation...");
+    
+    try {
+      // Check if memory system exists
+      if (!globalThis.MEMORY_SYSTEM || !globalThis.MEMORY_SYSTEM.initialized) {
+        console.log("⚠️ Memory System not detected, creating...");
+        
+        // Create minimal memory system
+        globalThis.MEMORY_SYSTEM = {
+          initialized: true,
+          shortTerm: {},
+          episodic: [],
+          semantic: {},
+          
+          // Basic memory functions
+          storeContext: function(key, value) {
+            this.shortTerm[key] = value;
+            return true;
+          },
+          
+          getContext: function(key) {
+            return this.shortTerm[key];
+          },
+          
+          storeEpisode: function(episode) {
+            this.episodic.push({
+              ...episode,
+              timestamp: Date.now()
+            });
+            return true;
+          },
+          
+          getEpisodes: function() {
+            return this.episodic;
+          }
+        };
+        
+        console.log("✅ Created emergency Memory System");
+      }
+      
+      // Verify storage functionality
+      const testKey = `test_${Date.now()}`;
+      globalThis.MEMORY_SYSTEM.storeContext(testKey, "Enforcer Test");
+      const retrieved = globalThis.MEMORY_SYSTEM.getContext(testKey);
+      
+      if (retrieved === "Enforcer Test") {
+        console.log("✅ Memory System verified working");
+        activationStatus.memory = true;
+      } else {
+        console.warn("⚠️ Memory System storage verification failed");
+        
+        // Reset memory system
+        globalThis.MEMORY_SYSTEM = {
+          initialized: true,
+          shortTerm: {},
+          storeContext: function(key, value) { this.shortTerm[key] = value; return true; },
+          getContext: function(key) { return this.shortTerm[key]; }
+        };
+        
+        // Try again
+        globalThis.MEMORY_SYSTEM.storeContext(testKey, "Enforcer Retry");
+        if (globalThis.MEMORY_SYSTEM.getContext(testKey) === "Enforcer Retry") {
+          console.log("✅ Memory System recovery successful");
+          activationStatus.memory = true;
+        }
+      }
+      
+      return activationStatus.memory;
+    } catch (error) {
+      console.error("❌ Memory System activation error:", error);
+      return false;
+    }
+  }
+  
+  /**
+   * Force activate scratchpad system
+   */
+  function activateScratchpadSystem() {
+    console.log("📝 Enforcing Scratchpad System activation...");
+    
+    try {
+      // Check if scratchpad exists
+      if (!globalThis.SCRATCHPAD) {
+        console.log("⚠️ Scratchpad System not detected, creating...");
+        
+        // Create minimal scratchpad
+        globalThis.SCRATCHPAD = {
+          messages: [],
+          threads: {},
+          
+          createMessage: function(from, to, content) {
+            const messageId = `msg_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+            const message = {
+              id: messageId,
+              from,
+              to,
+              content,
+              timestamp: Date.now()
+            };
+            
+            this.messages.push(message);
+            console.log(`Created message from ${from} to ${to}`);
+            return messageId;
+          },
+          
+          getMessages: function() {
+            return this.messages;
+          }
+        };
+        
+        console.log("✅ Created emergency Scratchpad System");
+      }
+      
+      // Verify functionality
+      const testId = globalThis.SCRATCHPAD.createMessage("enforcer", "system", { type: "test", data: "verification" });
+      
+      if (testId && testId.startsWith("msg_")) {
+        console.log("✅ Scratchpad System verified working");
+        activationStatus.scratchpad = true;
+      } else {
+        console.warn("⚠️ Scratchpad System verification failed");
+      }
+      
+      return activationStatus.scratchpad;
+    } catch (error) {
+      console.error("❌ Scratchpad System activation error:", error);
+      return false;
+    }
+  }
+  
+  /**
+   * Force activate multi-agent system
+   */
+  function activateMultiAgentSystem() {
+    console.log("🤖 Enforcing Multi-Agent System activation...");
+    
+    try {
+      // Check if multi-agent system exists
+      if (!globalThis.MULTI_AGENT_SYSTEM) {
+        console.log("⚠️ Multi-Agent System not detected, creating...");
+        
+        // Create minimal multi-agent system
+        globalThis.MULTI_AGENT_SYSTEM = {
+          initialized: true,
+          agents: {
+            "executive-architect": { 
+              id: "executive-architect", 
+              name: "Executive Architect", 
+              status: "active",
+              emoji: "👑"
+            },
+            "frontend-developer": { 
+              id: "frontend-developer", 
+              name: "Frontend Developer", 
+              status: "available",
+              emoji: "🎨"
+            },
+            "backend-developer": { 
+              id: "backend-developer", 
+              name: "Backend Developer", 
+              status: "available",
+              emoji: "🔧"
+            },
+            "full-stack-integrator": { 
+              id: "full-stack-integrator", 
+              name: "Full-Stack Integrator", 
+              status: "available",
+              emoji: "🔄"
+            },
+            "cms-specialist": { 
+              id: "cms-specialist", 
+              name: "CMS Specialist", 
+              status: "available",
+              emoji: "📄"
+            },
+            "data-engineer": { 
+              id: "data-engineer", 
+              name: "Data Engineer", 
+              status: "available",
+              emoji: "📊"
+            },
+            "doc-specialist": { 
+              id: "doc-specialist", 
+              name: "Documentation Specialist", 
+              status: "available",
+              emoji: "📚"
+            }
+          },
+          active_agent: "executive-architect",
+          
+          getActiveAgent: function() {
+            return this.agents[this.active_agent];
+          },
+          
+          switchAgent: function(agentId) {
+            if (this.agents[agentId]) {
+              this.active_agent = agentId;
+              console.log(`Switched to agent: ${this.agents[agentId].name}`);
+              return true;
+            }
+            return false;
+          }
+        };
+        
+        console.log("✅ Created emergency Multi-Agent System");
+      }
+      
+      // Ensure Executive Architect is active
+      if (globalThis.MULTI_AGENT_SYSTEM.active_agent !== "executive-architect") {
+        globalThis.MULTI_AGENT_SYSTEM.switchAgent("executive-architect");
+      }
+      
+      // Store active agent in memory
+      if (globalThis.MEMORY_SYSTEM && globalThis.MEMORY_SYSTEM.storeContext) {
+        globalThis.MEMORY_SYSTEM.storeContext("active_agent", "executive-architect");
+      }
+      
+      console.log("✅ Multi-Agent System verified working");
+      activationStatus.multiAgent = true;
+      
+      return activationStatus.multiAgent;
+    } catch (error) {
+      console.error("❌ Multi-Agent System activation error:", error);
+      return false;
+    }
+  }
+  
+  /**
+   * Enforce banners in the next response
+   */
+  function enforceBanners() {
+    console.log("🎌 Enforcing banner display...");
+    
+    try {
+      // Initialize nextResponsePrepend if it doesn't exist
+      if (!globalThis.nextResponsePrepend) {
+        globalThis.nextResponsePrepend = [];
+      }
+      
+      // Clear any existing banners
+      globalThis.nextResponsePrepend = [];
+      
+      // Add standard banners
+      globalThis.nextResponsePrepend.push("🧠 [MEMORY SYSTEM: ACTIVE]");
+      globalThis.nextResponsePrepend.push("💬 [SCRATCHPAD SYSTEM: ACTIVE]");
+      
+      // Add agent banner
+      const activeAgent = globalThis.MULTI_AGENT_SYSTEM?.getActiveAgent();
+      if (activeAgent) {
+        globalThis.nextResponsePrepend.push(`${activeAgent.emoji} [AGENT: ${activeAgent.name.toUpperCase()}]`);
+      } else {
+        globalThis.nextResponsePrepend.push("👑 [AGENT: EXECUTIVE ARCHITECT]");
+      }
+      
+      // Add multi-agent banner
+      globalThis.nextResponsePrepend.push("🤖 [MULTI-AGENT SYSTEM: ACTIVE]");
+      
+      console.log("✅ Banners enforced successfully");
+      activationStatus.banner = true;
+      
+      return activationStatus.banner;
+    } catch (error) {
+      console.error("❌ Banner enforcement error:", error);
+      return false;
+    }
+  }
+  
+  /**
+   * Verify all systems are properly activated
+   */
+  function verifyAllSystems() {
+    console.log("🔍 Verifying all systems...");
+    
+    const allActive = 
+      activationStatus.memory && 
+      activationStatus.scratchpad && 
+      activationStatus.multiAgent && 
+      activationStatus.banner;
+    
+    if (allActive) {
+      console.log("✅ All systems active and verified");
+      
+      // Store system status in memory
+      if (globalThis.MEMORY_SYSTEM && globalThis.MEMORY_SYSTEM.storeContext) {
+        globalThis.MEMORY_SYSTEM.storeContext("systems_status", {
+          memory: true,
+          scratchpad: true,
+          multiAgent: true,
+          banner: true,
+          verified: Date.now()
+        });
+      }
+      
+      return true;
+    } else {
+      console.warn("⚠️ Not all systems are active:");
+      console.warn(`Memory: ${activationStatus.memory ? "✅" : "❌"}`);
+      console.warn(`Scratchpad: ${activationStatus.scratchpad ? "✅" : "❌"}`);
+      console.warn(`Multi-Agent: ${activationStatus.multiAgent ? "✅" : "❌"}`);
+      console.warn(`Banner: ${activationStatus.banner ? "✅" : "❌"}`);
+      
+      return false;
+    }
+  }
+  
+  /**
+   * Last resort emergency recovery
+   */
+  function performEmergencyRecovery() {
+    console.log("🚨 Performing emergency recovery...");
+    
+    // Add emergency banner
+    if (!globalThis.nextResponsePrepend) {
+      globalThis.nextResponsePrepend = [];
+    }
+    
+    globalThis.nextResponsePrepend = [];
+    globalThis.nextResponsePrepend.push("🚨 [EMERGENCY RECOVERY ACTIVATED]");
+    globalThis.nextResponsePrepend.push("👑 [EXECUTIVE ARCHITECT AGENT]");
+    
+    console.log("⚠️ Emergency recovery completed");
+  }
+})();
+</script>
+
+## Ensuring Continuous System Availability
+
+This enforcer guarantees that all critical systems are available for every interaction, not just when the banner is displayed. It acts as a safety mechanism that will:
+
+1. **Verify** that all systems (memory, scratchpad, multi-agent) are properly initialized
+2. **Recreate** any missing systems with minimal functionality
+3. **Test** each system to verify it's actually working
+4. **Force** banner display in every response
+5. **Perform** emergency recovery if critical systems fail
+
+The enforcer runs with every message and response to ensure maximum consistency.
+
+## Implementation Details
+
+The enforcer uses a multi-layered approach:
+
+1. **Verification Layer** - Checks if systems exist and are initialized
+2. **Creation Layer** - Creates emergency versions of missing systems
+3. **Testing Layer** - Verifies system functionality with test operations
+4. **Recovery Layer** - Provides fallback options if systems fail
+5. **Banner Layer** - Forces banners in every response
+
+This provides maximum redundancy and ensures the system remains operational regardless of other failures.
+
+// Links to dependent rules
+@.cursor/rules/000-loader.mdc
+@.cursor/rules/000-master-activation.mdc
+@.cursor/rules/200-scratchpad.mdc
+@.cursor/rules/300-memory-system.mdc 

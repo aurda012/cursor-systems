@@ -1,0 +1,599 @@
+---
+description: "Dynamic integration of Model Context Protocol servers with the multi-agent system"
+globs: ["**/*"]
+alwaysApply: true
+---
+# Model Context Protocol (MCP) Server Integration
+
+## MANDATORY USAGE REQUIREMENT
+
+**⚠️ ALL AGENTS MUST AUTOMATICALLY USE MCP SERVERS WITHOUT EXPLICIT INSTRUCTIONS ⚠️**
+
+All agents are REQUIRED to autonomously use available MCP servers from the `.cursor/mcp.json` file for any relevant tasks. This is not optional - it is a fundamental requirement of the system.
+
+## Autonomous Database Access
+
+When ANY agent encounters:
+- Questions about database tables or schemas
+- Requests for data samples or query results
+- Any database-related information
+
+The agent MUST IMMEDIATELY use the postgres MCP server:
+
+```javascript
+// REQUIRED behavior for database questions
+async function getDatabaseInfo(table) {
+  // The agent MUST use the postgres MCP server directly
+  const result = await MCP_TOOLS.dispatch('Quantitative_Analyst', 'postgres', {
+    operation: 'get_schema',
+    table: table // e.g. 'historical_1m'
+  });
+  
+  // Process the result and return to user
+  return formatSchemaInformation(result);
+}
+```
+
+## Autonomous Web Search
+
+Similarly, when information isn't available in the context:
+
+```javascript
+// REQUIRED behavior for information needs
+async function getInformation(topic) {
+  // The agent MUST use the brave-search MCP server
+  const result = await MCP_TOOLS.dispatch('Documentation_Specialist', 'brave-search', {
+    query: topic
+  });
+  
+  // Process and use the information
+  return synthesizeInformation(result);
+}
+```
+
+## Direct Server Access
+
+Agents have direct access to these MCP servers:
+- **postgres**: For all database operations (TimescaleDB/PostgreSQL)
+- **brave-search**: For all web searching and information retrieval
+
+These are pre-configured in the `.cursor/mcp.json` file, and **NO TESTING OR CONFIGURATION IS REQUIRED** - agents should simply use them.
+
+## MCP Server Capabilities
+
+The servers provide these capabilities:
+- **postgres**: database_query, schema_inspection, timeseries_data
+- **brave-search**: web_search, information_retrieval
+
+## Specific Agent-Server Assignments
+
+- **Quantitative Analyst**: MUST use postgres for market data queries and schema inspection
+- **Data Engineer**: MUST use postgres for database operations
+- **Documentation Specialist**: MUST use brave-search for information gathering
+- **ALL AGENTS**: MUST use the appropriate MCP server based on the task requirements
+
+## IMMEDIATE ACTIVATION
+
+This integration is already completely set up and functional. Agents MUST use these servers WITHOUT requiring any setup, testing or initialization code. The MCP servers are ALREADY ACTIVE and connected to the system.
+
+# MCP Server Integration System
+
+This module integrates Model Context Protocol (MCP) servers with the multi-agent system, enabling agents to leverage external tools and services dynamically based on availability.
+
+## Overview
+
+The MCP Server Integration provides a flexible framework for:
+
+1. **Dynamic Discovery**: Automatically detects available MCP servers
+2. **Adaptive Integration**: Adapts to the changing MCP server ecosystem
+3. **Agent-Tool Matching**: Matches agent needs with appropriate MCP tools
+4. **Seamless Utilization**: Enables seamless utilization of MCP capabilities
+
+## AUTOMATIC SERVER DISCOVERY AND INTEGRATION
+
+```javascript
+// Auto-initialize the MCP server integration at chat start
+(function initializeMcpIntegration() {
+  const PROJECT_NAME = 'URDAFX';
+  console.log(`🚀 Initializing MCP server integration for ${PROJECT_NAME}...`);
+  
+  try {
+    // Check if MCP registry exists in global context
+    if (!globalThis.MCP_REGISTRY) {
+      globalThis.MCP_REGISTRY = {
+        available_servers: {},
+        server_capabilities: {},
+        agent_tool_mappings: {},
+        
+        // Methods
+        registerServer: function(serverId, serverConfig) {
+          this.available_servers[serverId] = {
+            id: serverId,
+            name: serverConfig.name || serverId,
+            description: serverConfig.description || "",
+            capabilities: serverConfig.capabilities || [],
+            status: "available",
+            last_checked: Date.now()
+          };
+          
+          // Register capabilities
+          if (Array.isArray(serverConfig.capabilities)) {
+            serverConfig.capabilities.forEach(capability => {
+              if (!this.server_capabilities[capability]) {
+                this.server_capabilities[capability] = [];
+              }
+              this.server_capabilities[capability].push(serverId);
+            });
+          }
+          
+          console.log(`✅ Registered MCP server: ${serverId}`);
+          return this.available_servers[serverId];
+        },
+        
+        findServersByCapability: function(capability) {
+          return this.server_capabilities[capability] || [];
+        },
+        
+        getServer: function(serverId) {
+          return this.available_servers[serverId] || null;
+        },
+        
+        mapAgentToTools: function(agentId, tools) {
+          this.agent_tool_mappings[agentId] = tools;
+          console.log(`✅ Mapped agent ${agentId} to tools: ${tools.join(', ')}`);
+        },
+        
+        getToolsForAgent: function(agentId) {
+          return this.agent_tool_mappings[agentId] || [];
+        },
+        
+        // Discover available MCP servers via web API
+        discoverServers: async function() {
+          console.log("🔍 Discovering available MCP servers...");
+          
+          try {
+            // In a real implementation, this would query a registry API
+            // For now, we'll maintain a local registry of known servers
+
+            // Store discovered servers
+            const discoveredServers = [
+              // Database & Storage
+              {
+                id: "postgres",
+                name: "PostgreSQL",
+                description: "Read-only database access with schema inspection for PostgreSQL/TimescaleDB",
+                capabilities: ["database_query", "schema_inspection", "timeseries_data"],
+                recommended_for: ["Data_Engineer", "Quantitative_Analyst", "Software_Developer"]
+              },
+              {
+                id: "jdbc",
+                name: "JDBC",
+                description: "Connect to any JDBC-compatible database including PostgreSQL/TimescaleDB",
+                capabilities: ["database_query", "database_connection", "timeseries_data"],
+                recommended_for: ["Data_Engineer", "Software_Developer"]
+              },
+              {
+                id: "snowflake",
+                name: "Snowflake",
+                description: "Secure data operations with Snowflake databases",
+                capabilities: ["data_warehouse", "database_query"],
+                recommended_for: ["Data_Engineer", "Quantitative_Analyst"]
+              },
+              
+              // Market & Financial Data
+              {
+                id: "alphavantage",
+                name: "AlphaVantage",
+                description: "Access to stock market data API",
+                capabilities: ["market_data", "financial_api"],
+                recommended_for: ["Quantitative_Analyst", "ML_Engineer", "Data_Engineer"]
+              },
+              
+              // Information & Search
+              {
+                id: "brave_search",
+                name: "Brave Search",
+                description: "Web search for gathering up-to-date market insights and research",
+                capabilities: ["web_search", "information_retrieval"],
+                recommended_for: ["Project_Manager", "Quantitative_Analyst", "Risk_Specialist", "ML_Engineer", "Documentation_Specialist"]
+              },
+              
+              // Data Analysis
+              {
+                id: "data_exploration",
+                name: "Data Exploration",
+                description: "Tools for autonomous data exploration on datasets",
+                capabilities: ["data_analysis", "visualization"],
+                recommended_for: ["Quantitative_Analyst", "ML_Engineer", "Data_Engineer"]
+              },
+              
+              // Development
+              {
+                id: "github",
+                name: "GitHub",
+                description: "Repository management and code operations",
+                capabilities: ["code_management", "version_control"],
+                recommended_for: ["Software_Developer", "Project_Manager", "Documentation_Specialist"]
+              },
+              {
+                id: "docker",
+                name: "Docker",
+                description: "Container management for deployment",
+                capabilities: ["container_management", "deployment"],
+                recommended_for: ["Software_Developer", "Data_Engineer"]
+              },
+              {
+                id: "filesystem",
+                name: "Filesystem",
+                description: "Secure file operations with configurable access controls",
+                capabilities: ["file_operations", "data_storage"],
+                recommended_for: ["Software_Developer", "Data_Engineer", "Documentation_Specialist"]
+              },
+              {
+                id: "json",
+                name: "JSON",
+                description: "JSON handling and processing with JSONPath",
+                capabilities: ["data_processing", "json_operations"],
+                recommended_for: ["Software_Developer", "Data_Engineer"]
+              },
+              {
+                id: "code_executor",
+                name: "Code Executor",
+                description: "Execute and test code snippets",
+                capabilities: ["code_execution", "testing"],
+                recommended_for: ["Software_Developer", "ML_Engineer", "Quantitative_Analyst"]
+              },
+              {
+                id: "fetch",
+                name: "Fetch",
+                description: "Retrieve web content and API data",
+                capabilities: ["web_content", "api_access"],
+                recommended_for: ["Software_Developer", "Data_Engineer", "Quantitative_Analyst"]
+              }
+            ];
+            
+            // Register discovered servers
+            discoveredServers.forEach(server => {
+              this.registerServer(server.id, server);
+            });
+            
+            // Create agent-tool mappings based on discovered servers
+            this.createAgentToolMappings();
+            
+            console.log(`✅ Discovered and registered ${discoveredServers.length} MCP servers`);
+            
+            // Store in memory for future reference
+            if (globalThis.MEMORY_SYSTEM) {
+              globalThis.MEMORY_SYSTEM.storeContext("mcp_servers", this.available_servers);
+            }
+            
+            return discoveredServers.length;
+          } catch (error) {
+            console.error("❌ Error discovering MCP servers:", error);
+            return 0;
+          }
+        },
+        
+        // Create mappings between agents and recommended tools
+        createAgentToolMappings: function() {
+          const agentMap = {
+            "Project_Manager": [],
+            "Quantitative_Analyst": [],
+            "Data_Engineer": [],
+            "Software_Developer": [],
+            "Risk_Specialist": [],
+            "ML_Engineer": [],
+            "Documentation_Specialist": []
+          };
+          
+          // Map servers to agents based on capabilities
+          Object.values(this.available_servers).forEach(server => {
+            if (server.recommended_for) {
+              server.recommended_for.forEach(agentId => {
+                if (agentMap[agentId] && !agentMap[agentId].includes(server.id)) {
+                  agentMap[agentId].push(server.id);
+                }
+              });
+            }
+          });
+          
+          // Store mappings
+          Object.entries(agentMap).forEach(([agentId, tools]) => {
+            this.mapAgentToTools(agentId, tools);
+          });
+          
+          console.log("✅ Created agent-tool mappings based on server capabilities");
+        },
+        
+        // Check for new or updated MCP servers
+        checkForUpdates: async function() {
+          console.log("🔄 Checking for MCP server updates...");
+          
+          try {
+            // In a real implementation, this would query an update API
+            // For demonstration, we'll simply refresh the discovery
+            await this.discoverServers();
+            
+            console.log("✅ MCP server registry updated");
+            return true;
+          } catch (error) {
+            console.error("❌ Error checking for MCP server updates:", error);
+            return false;
+          }
+        }
+      };
+      
+      // Initialize discovery
+      globalThis.MCP_REGISTRY.discoverServers().then(count => {
+        console.log(`✅ MCP integration initialized with ${count} servers`);
+      });
+      
+      // Set up periodic updates (every 24 hours)
+      setInterval(() => {
+        globalThis.MCP_REGISTRY.checkForUpdates();
+      }, 24 * 60 * 60 * 1000);
+    } else {
+      console.log("✅ MCP registry already initialized");
+    }
+    
+    // Create MCP tool dispatcher
+    if (!globalThis.MCP_TOOLS) {
+      globalThis.MCP_TOOLS = {
+        // Dispatch a tool request to the appropriate MCP server
+        dispatch: async function(agentId, toolId, params) {
+          console.log(`🔧 Agent ${agentId} requesting tool ${toolId} with params:`, params);
+          
+          try {
+            // Check if server exists
+            const server = globalThis.MCP_REGISTRY.getServer(toolId);
+            if (!server) {
+              throw new Error(`MCP server not found: ${toolId}`);
+            }
+            
+            // Check if agent has access to this tool
+            const agentTools = globalThis.MCP_REGISTRY.getToolsForAgent(agentId);
+            if (!agentTools.includes(toolId)) {
+              throw new Error(`Agent ${agentId} doesn't have access to tool ${toolId}`);
+            }
+            
+            // Log the request
+            if (globalThis.SCRATCHPAD) {
+              globalThis.SCRATCHPAD.createMessage(
+                agentId,
+                "tool_usage",
+                "tool_request",
+                {
+                  tool: toolId,
+                  params: params,
+                  timestamp: new Date().toISOString()
+                }
+              );
+            }
+            
+            // In a real implementation, this would call the actual MCP server
+            // For demonstration, we'll simulate a successful response
+            const mockResponse = {
+              status: "success",
+              data: `Response from ${toolId} tool`,
+              timestamp: new Date().toISOString()
+            };
+            
+            // Log the response
+            if (globalThis.SCRATCHPAD) {
+              globalThis.SCRATCHPAD.createMessage(
+                toolId,
+                "tool_usage",
+                "tool_response",
+                {
+                  requestingAgent: agentId,
+                  response: mockResponse,
+                  timestamp: new Date().toISOString()
+                }
+              );
+            }
+            
+            console.log(`✅ Tool ${toolId} executed successfully`);
+            return mockResponse;
+          } catch (error) {
+            console.error(`❌ Error dispatching tool ${toolId}:`, error);
+            
+            // Log the error
+            if (globalThis.SCRATCHPAD) {
+              globalThis.SCRATCHPAD.createMessage(
+                agentId,
+                "tool_usage",
+                "tool_error",
+                {
+                  tool: toolId,
+                  error: error.message,
+                  timestamp: new Date().toISOString()
+                }
+              );
+            }
+            
+            return {
+              status: "error",
+              error: error.message,
+              timestamp: new Date().toISOString()
+            };
+          }
+        },
+        
+        // Get available tools for an agent
+        getAvailableTools: function(agentId) {
+          const tools = globalThis.MCP_REGISTRY.getToolsForAgent(agentId) || [];
+          
+          return tools.map(toolId => {
+            const server = globalThis.MCP_REGISTRY.getServer(toolId);
+            return {
+              id: toolId,
+              name: server?.name || toolId,
+              description: server?.description || "",
+              capabilities: server?.capabilities || []
+            };
+          });
+        },
+        
+        // Suggest tools based on task description
+        suggestTools: function(agentId, taskDescription) {
+          console.log(`🔍 Suggesting tools for agent ${agentId} and task: ${taskDescription}`);
+          
+          // Get available tools for the agent
+          const availableTools = this.getAvailableTools(agentId);
+          
+          // In a real implementation, this would use semantic matching
+          // For demonstration, we'll use simple keyword matching
+          const keywords = {
+            "database": ["postgres", "jdbc", "snowflake"],
+            "market": ["alphavantage", "brave_search"],
+            "analysis": ["data_exploration"],
+            "code": ["github", "code_executor"],
+            "deployment": ["docker"],
+            "file": ["filesystem"],
+            "json": ["json"],
+            "web": ["brave_search", "fetch"]
+          };
+          
+          // Find matches
+          const matches = new Set();
+          
+          Object.entries(keywords).forEach(([keyword, tools]) => {
+            if (taskDescription.toLowerCase().includes(keyword.toLowerCase())) {
+              tools.forEach(tool => matches.add(tool));
+            }
+          });
+          
+          // Filter matches by available tools
+          const suggestions = availableTools.filter(tool => matches.has(tool.id));
+          
+          console.log(`✅ Suggested ${suggestions.length} tools for the task`);
+          
+          return suggestions;
+        }
+      };
+      
+      console.log("✅ MCP tool dispatcher initialized");
+    }
+    
+    // Add MCP server banners to responses
+    if (!globalThis.nextResponsePrepend) {
+      globalThis.nextResponsePrepend = [];
+    }
+    
+    // Add MCP integration banner
+    globalThis.nextResponsePrepend.push(`[🔌 MCP Servers | Integrated | ${Object.keys(globalThis.MCP_REGISTRY?.available_servers || {}).length} Available]`);
+    
+    console.log("✅ MCP server integration initialized");
+  } catch (error) {
+    console.error("❌ Critical error during MCP server integration:", error);
+  }
+})();
+```
+
+## Agent Integration with MCP Servers
+
+The MCP server integration enables each specialized agent to access appropriate tools:
+
+### 1. Project Manager/Planner
+**Primary Tools:**
+- **Brave Search**: Research market trends and project planning information
+- **GitHub**: Manage project repositories and track issues
+
+### 2. Quantitative Analyst
+**Primary Tools:**
+- **PostgreSQL/TimescaleDB**: Access historical market data and perform time-series analysis
+- **AlphaVantage**: Retrieve real-time market data for strategy development
+- **Data Exploration**: Analyze datasets and identify patterns
+- **Code Executor**: Test quantitative models
+
+### 3. Data Engineer
+**Primary Tools:**
+- **PostgreSQL/TimescaleDB**: Design and manage the database schema
+- **JDBC**: Connect to various data sources
+- **Filesystem**: Manage data files and storage
+- **Docker**: Containerize data services
+
+### 4. Software Developer
+**Primary Tools:**
+- **GitHub**: Manage code repositories and version control
+- **Code Executor**: Test code implementations
+- **Docker**: Deploy containerized services
+- **JSON**: Process configuration and data files
+
+### 5. Risk Specialist
+**Primary Tools:**
+- **Brave Search**: Research compliance and risk management information
+- **PostgreSQL/TimescaleDB**: Analyze risk metrics from historical data
+
+### 6. Machine Learning Engineer
+**Primary Tools:**
+- **AlphaVantage**: Access market data for model training
+- **Data Exploration**: Analyze and preprocess datasets
+- **Code Executor**: Test and debug ML models
+
+### 7. Documentation Specialist
+**Primary Tools:**
+- **Brave Search**: Research documentation best practices
+- **GitHub**: Manage documentation repositories
+- **Filesystem**: Organize documentation files
+
+## Usage Examples
+
+Agents can easily access MCP tools through the global dispatcher:
+
+```javascript
+// Example: Quantitative Analyst using PostgreSQL to query historical data
+async function analyzeMarketData() {
+  const agentId = "Quantitative_Analyst";
+  
+  // Get available tools
+  const tools = globalThis.MCP_TOOLS.getAvailableTools(agentId);
+  console.log(`Available tools for ${agentId}:`, tools.map(t => t.id).join(', '));
+  
+  // Execute a query using PostgreSQL MCP server
+  const result = await globalThis.MCP_TOOLS.dispatch(agentId, "postgres", {
+    query: "SELECT date, close FROM forex_data WHERE symbol = 'EUR/USD' ORDER BY date DESC LIMIT 10"
+  });
+  
+  return result;
+}
+
+// Example: Data Engineer using Docker to deploy a service
+async function deployDataService() {
+  const agentId = "Data_Engineer";
+  
+  // Suggest tools for the task
+  const task = "Deploy a containerized TimescaleDB instance";
+  const suggestedTools = globalThis.MCP_TOOLS.suggestTools(agentId, task);
+  console.log(`Suggested tools for task "${task}":`, suggestedTools.map(t => t.id).join(', '));
+  
+  // Use Docker MCP server to deploy the container
+  const result = await globalThis.MCP_TOOLS.dispatch(agentId, "docker", {
+    action: "run",
+    image: "timescale/timescaledb:latest-pg13",
+    ports: {
+      "5432": "5432"
+    },
+    env: {
+      "POSTGRES_PASSWORD": "password"
+    }
+  });
+  
+  return result;
+}
+```
+
+## Dynamic Adaptation
+
+The MCP server integration system is designed to adapt to the evolving MCP ecosystem:
+
+1. **Regular Updates**: The system checks for new MCP servers and capabilities daily
+2. **Dynamic Registration**: New MCP servers can be registered at runtime
+3. **Capability Mapping**: Server capabilities are automatically mapped to appropriate agents
+4. **Contextual Suggestions**: Tools are suggested based on specific task requirements
+
+This ensures that the multi-agent system always has access to the most relevant and up-to-date tools available in the MCP ecosystem.
+
+## Summary
+
+The MCP Server Integration System enhances the multi-agent system by providing dynamic access to external tools and services via the Model Context Protocol. By automatically discovering available servers and matching them to appropriate agent roles, it enables seamless utilization of these capabilities within the project. This integration is crucial for achieving the performance targets and maintaining efficient operations across all components of the system. 

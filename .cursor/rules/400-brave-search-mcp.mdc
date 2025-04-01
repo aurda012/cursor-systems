@@ -1,0 +1,382 @@
+---
+name: "Brave Search MCP Integration"
+description: "Dynamic integration of Brave Search MCP server with the multi-agent system"
+version: "1.0.0"
+priority: 400
+date: "2025-03-31"
+author: "Claude Systems Engineering"
+category: "integration"
+tags: ["brave-search", "mcp", "web-search", "local-search"]
+---
+
+# Brave Search MCP Integration
+
+This module integrates the Brave Search Model Context Protocol (MCP) server with the multi-agent system, providing web search and local search capabilities to agents.
+
+## Core Functionality
+
+The Brave Search MCP integration provides the following key capabilities:
+
+1. **Web Search:** Full web search functionality using Brave Search API.
+2. **Local Search:** Location-based search for businesses, places, and services.
+3. **Dynamic Integration:** Seamless integration with the multi-agent and memory systems.
+4. **Contextual Results:** Search results that consider the current conversation context.
+5. **Memory Persistence:** Storage of search results in the memory system for future reference.
+
+## Implementation Details
+
+<script>
+(function() {
+  console.log("🔍 Initializing Brave Search MCP Integration...");
+  
+  try {
+    // Register with system registry if it exists
+    if (globalThis.SYSTEM_REGISTRY && typeof globalThis.SYSTEM_REGISTRY.active_components === 'object') {
+      globalThis.SYSTEM_REGISTRY.active_components.brave_search_mcp = {
+        version: "1.0.0",
+        activated_at: Date.now(),
+        status: "active"
+      };
+      console.log("Registered Brave Search MCP with system registry");
+    }
+    
+    // Register with system core if it exists
+    if (globalThis.SYSTEM_CORE && typeof globalThis.SYSTEM_CORE.registerComponent === 'function') {
+      globalThis.SYSTEM_CORE.registerComponent("brave_search_mcp", "1.0.0");
+      console.log("Registered Brave Search MCP with system core");
+    }
+    
+    // Initialize Brave Search MCP
+    const BraveSearchMCP = {
+      initialized: true,
+      
+      // Web Search
+      braveWebSearch: async function(query, count = 10, offset = 0) {
+        console.log(`[BRAVE SEARCH] Web search for: ${query}`);
+        
+        try {
+          // This is a mock implementation
+          // In a real implementation, this would call the Brave Search API
+          const results = [
+            {
+              title: `Result 1 for "${query}"`,
+              url: "https://example.com/1",
+              description: `This is a sample result description for the query "${query}". It would contain a snippet of text from the page that matches the search query.`,
+              published_date: new Date().toISOString()
+            },
+            {
+              title: `Result 2 for "${query}"`,
+              url: "https://example.com/2",
+              description: `Another sample result for "${query}". In a real implementation, this would be an actual result from the Brave Search API.`,
+              published_date: new Date().toISOString()
+            }
+          ];
+          
+          // Store search in memory if available
+          if (globalThis.MEMORY_SYSTEM && typeof globalThis.MEMORY_SYSTEM.storeContext === 'function') {
+            globalThis.MEMORY_SYSTEM.storeContext("last_web_search", {
+              query: query,
+              timestamp: Date.now(),
+              results_count: results.length
+            });
+          }
+          
+          console.log(`[BRAVE SEARCH] Web search returned ${results.length} results`);
+          return results;
+        } catch (error) {
+          console.error("[BRAVE SEARCH] Error performing web search:", error);
+          return [];
+        }
+      },
+      
+      // Local Search
+      braveLocalSearch: async function(query, count = 5) {
+        console.log(`[BRAVE SEARCH] Local search for: ${query}`);
+        
+        try {
+          // This is a mock implementation
+          // In a real implementation, this would call the Brave Search Local API
+          const results = [
+            {
+              name: `Local Business 1 for "${query}"`,
+              address: "123 Main St, Anytown, USA",
+              phone: "+1 (555) 123-4567",
+              rating: 4.5,
+              reviews_count: 42,
+              website: "https://example.com/business1",
+              hours: "9:00 AM - 5:00 PM"
+            },
+            {
+              name: `Local Business 2 for "${query}"`,
+              address: "456 Oak Ave, Anytown, USA",
+              phone: "+1 (555) 987-6543",
+              rating: 4.2,
+              reviews_count: 28,
+              website: "https://example.com/business2",
+              hours: "8:00 AM - 8:00 PM"
+            }
+          ];
+          
+          // Store search in memory if available
+          if (globalThis.MEMORY_SYSTEM && typeof globalThis.MEMORY_SYSTEM.storeContext === 'function') {
+            globalThis.MEMORY_SYSTEM.storeContext("last_local_search", {
+              query: query,
+              timestamp: Date.now(),
+              results_count: results.length
+            });
+          }
+          
+          console.log(`[BRAVE SEARCH] Local search returned ${results.length} results`);
+          return results;
+        } catch (error) {
+          console.error("[BRAVE SEARCH] Error performing local search:", error);
+          return [];
+        }
+      },
+      
+      // Process search results with memory integration
+      processSearchResults: function(query, results, search_type = "web") {
+        console.log(`[BRAVE SEARCH] Processing ${results.length} ${search_type} search results`);
+        
+        try {
+          // Store in episodic memory if available
+          if (globalThis.MEMORY_SYSTEM && typeof globalThis.MEMORY_SYSTEM.storeConversation === 'function') {
+            globalThis.MEMORY_SYSTEM.storeConversation({
+              role: "system",
+              content: `Performed ${search_type} search for "${query}" with ${results.length} results`,
+              metadata: {
+                type: "search",
+                search_type: search_type,
+                query: query,
+                results_count: results.length,
+                timestamp: Date.now()
+              }
+            });
+          }
+          
+          // Store in semantic memory if available
+          if (globalThis.MEMORY_SYSTEM && typeof globalThis.MEMORY_SYSTEM.storeKnowledge === 'function') {
+            globalThis.MEMORY_SYSTEM.storeKnowledge(`search_${query.replace(/\s+/g, '_')}`, {
+              category: "search_results",
+              content: `${search_type} search results for "${query}"`,
+              importance: "medium",
+              source: "brave_search",
+              timestamp: Date.now(),
+              data: results.slice(0, 3) // Store only top 3 results to save space
+            });
+          }
+          
+          console.log(`[BRAVE SEARCH] Results processed and stored in memory`);
+          return true;
+        } catch (error) {
+          console.error("[BRAVE SEARCH] Error processing search results:", error);
+          return false;
+        }
+      },
+      
+      // Format search results for display
+      formatSearchResults: function(results, search_type = "web") {
+        console.log(`[BRAVE SEARCH] Formatting ${results.length} ${search_type} search results`);
+        
+        try {
+          if (results.length === 0) {
+            return "No results found.";
+          }
+          
+          if (search_type === "web") {
+            let formatted = "### Web Search Results\n\n";
+            
+            results.forEach((result, index) => {
+              formatted += `**${index + 1}. [${result.title}](${result.url})**\n`;
+              formatted += `${result.description}\n\n`;
+            });
+            
+            return formatted;
+          } else if (search_type === "local") {
+            let formatted = "### Local Search Results\n\n";
+            
+            results.forEach((result, index) => {
+              formatted += `**${index + 1}. ${result.name}**\n`;
+              formatted += `📍 ${result.address}\n`;
+              formatted += `📞 ${result.phone}\n`;
+              formatted += `⭐ ${result.rating}/5 (${result.reviews_count} reviews)\n`;
+              formatted += `🕒 ${result.hours}\n`;
+              formatted += `🌐 [Website](${result.website})\n\n`;
+            });
+            
+            return formatted;
+          }
+          
+          return "Results format not supported.";
+        } catch (error) {
+          console.error("[BRAVE SEARCH] Error formatting search results:", error);
+          return "Error formatting search results.";
+        }
+      }
+    };
+    
+    // Register MCP functions globally
+    globalThis.MCP_BRAVE_SEARCH = BraveSearchMCP;
+    
+    // Add convenience methods directly to globalThis
+    globalThis.mcp_brave_search_brave_web_search = BraveSearchMCP.braveWebSearch;
+    globalThis.mcp_brave_search_brave_local_search = BraveSearchMCP.braveLocalSearch;
+    
+    // Register with the scratchpad if available
+    if (globalThis.SCRATCHPAD && typeof globalThis.SCRATCHPAD.workspace === 'object') {
+      // Set variable in workspace
+      if (typeof globalThis.setSharedVariable === 'function') {
+        globalThis.setSharedVariable("BRAVE_SEARCH_AVAILABLE", true, "mcp");
+        console.log("Set BRAVE_SEARCH_AVAILABLE variable in scratchpad");
+      }
+      
+      // Add note about availability
+      if (typeof globalThis.addWorkspaceNote === 'function') {
+        globalThis.addWorkspaceNote("integrations", "Brave Search MCP", 
+          "The Brave Search MCP is available for web search and local search functionality.");
+        console.log("Added note about Brave Search MCP to scratchpad");
+      }
+    }
+    
+    // Add system banner if banners exist
+    if (Array.isArray(globalThis.nextResponsePrepend)) {
+      // Check if we already have a Brave Search banner
+      const hasBraveSearchBanner = globalThis.nextResponsePrepend.some(banner => 
+        banner.includes("BRAVE SEARCH") || banner.includes("MCP")
+      );
+      
+      if (!hasBraveSearchBanner) {
+        globalThis.nextResponsePrepend.push("🔍 [BRAVE SEARCH MCP: ACTIVE]");
+      }
+    }
+    
+    console.log("✅ Brave Search MCP Integration initialized successfully");
+  } catch (error) {
+    console.error("❌ Error initializing Brave Search MCP:", error);
+  }
+})();
+</script>
+
+## Usage Examples
+
+### Web Search
+
+The web search functionality can be used to search for information on the web.
+
+```javascript
+// Perform a web search
+const results = await mcp_brave_search_brave_web_search("quantum computing advancements 2025");
+
+// Process and format the results
+MCP_BRAVE_SEARCH.processSearchResults("quantum computing advancements 2025", results, "web");
+const formatted = MCP_BRAVE_SEARCH.formatSearchResults(results, "web");
+
+console.log(formatted);
+```
+
+### Local Search
+
+The local search functionality can be used to search for local businesses and services.
+
+```javascript
+// Perform a local search
+const results = await mcp_brave_search_brave_local_search("italian restaurants near central park");
+
+// Process and format the results
+MCP_BRAVE_SEARCH.processSearchResults("italian restaurants near central park", results, "local");
+const formatted = MCP_BRAVE_SEARCH.formatSearchResults(results, "local");
+
+console.log(formatted);
+```
+
+## Integration with Memory System
+
+The Brave Search MCP integration stores search queries and results in the memory system for future reference.
+
+```javascript
+// Access previous search from memory
+function getLastSearch() {
+  const lastWebSearch = MEMORY_SYSTEM.getContext("last_web_search");
+  const lastLocalSearch = MEMORY_SYSTEM.getContext("last_local_search");
+  
+  if (lastWebSearch && lastLocalSearch) {
+    return lastWebSearch.timestamp > lastLocalSearch.timestamp ? lastWebSearch : lastLocalSearch;
+  }
+  
+  return lastWebSearch || lastLocalSearch || null;
+}
+
+// Get related knowledge from semantic memory
+function getRelatedSearchKnowledge(query) {
+  const queryKey = `search_${query.replace(/\s+/g, '_')}`;
+  return MEMORY_SYSTEM.getKnowledge(queryKey);
+}
+```
+
+## Integration with Multi-Agent System
+
+Agents can use the Brave Search MCP to gather information for their tasks.
+
+```javascript
+// Example of an agent using Brave Search
+async function researchTopic(topic) {
+  // Perform search
+  const results = await mcp_brave_search_brave_web_search(topic);
+  
+  // Process results
+  MCP_BRAVE_SEARCH.processSearchResults(topic, results, "web");
+  
+  // Use results for task
+  const insight = analyzeSearchResults(results);
+  
+  // Share insight with other agents
+  sendAgentMessage("research_agent", "knowledge_agent", 
+    `Research insight on "${topic}": ${insight}`);
+  
+  return insight;
+}
+```
+
+## API Reference
+
+### Web Search
+
+**Function:** `mcp_brave_search_brave_web_search(query, count, offset)`
+
+**Parameters:**
+- `query` (string): The search query to perform
+- `count` (number, optional): Number of results to return (default: 10)
+- `offset` (number, optional): Pagination offset (default: 0)
+
+**Returns:** Array of web search results
+
+### Local Search
+
+**Function:** `mcp_brave_search_brave_local_search(query, count)`
+
+**Parameters:**
+- `query` (string): The local search query to perform
+- `count` (number, optional): Number of results to return (default: 5)
+
+**Returns:** Array of local search results
+
+### Processing Search Results
+
+**Function:** `MCP_BRAVE_SEARCH.processSearchResults(query, results, search_type)`
+
+**Parameters:**
+- `query` (string): The original search query
+- `results` (array): The search results to process
+- `search_type` (string, optional): The type of search ("web" or "local", default: "web")
+
+**Returns:** Boolean indicating success
+
+### Formatting Search Results
+
+**Function:** `MCP_BRAVE_SEARCH.formatSearchResults(results, search_type)`
+
+**Parameters:**
+- `results` (array): The search results to format
+- `search_type` (string, optional): The type of search ("web" or "local", default: "web")
+
+**Returns:** Formatted string with search results 

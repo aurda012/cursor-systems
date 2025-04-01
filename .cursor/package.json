@@ -1,0 +1,12 @@
+{
+  "name": "cursor-systems",
+  "version": "1.0.0",
+  "description": "Multi-agent system with memory and scratchpad capabilities",
+  "private": true,
+  "scripts": {
+    "test": "node test-banners.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^8.6.0"
+  }
+}
