@@ -1,6 +1,7 @@
 # Cursor Systems
 
 <div align="center">
+  <img src="https://raw.githubusercontent.com/user/cursor-systems/main/assets/logo.png" alt="Cursor Systems Logo" width="200"/>
   <p><em>A portable multi-agent system architecture with memory persistence and inter-agent communication</em></p>
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -495,4 +496,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 <div align="center">
   <p>Built with ❤️ by the Cursor Systems team</p>
 </div>
-````
